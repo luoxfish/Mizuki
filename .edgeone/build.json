@@ -1,5 +1,7 @@
 {
-    "cache": {
-      "paths": ["node_modules/.pnpm", ".astro"]
+    "build": {
+      "cache": [
+        "node_modules"
+      ]
     }
   }
