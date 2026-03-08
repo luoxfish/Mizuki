@@ -20,6 +20,13 @@ const diaryData: DiaryItem[] = [
 		date: "2025-01-15T10:30:00Z",
 		images: ["/images/diary/sakura.jpg", "/images/diary/1.jpg"],
 	},
+	{
+		id: 2,
+		content:
+			"这是我的第一篇日记",
+		date: "2026-03-08T10:30:00Z",
+		images: ["/images/diary/sakura.jpg", "/images/diary/1.jpg"],
+	},
 ];
 
 // 获取日记统计数据
