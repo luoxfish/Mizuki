@@ -79,9 +79,95 @@ const config = {
       initTwikoo();
     }
   });
+
+  // QQ 头像实时预览
+  function initQQAvatarPreview() {
+    const tcomment = document.getElementById('tcomment');
+    if (!tcomment) return;
+
+    const observer = new MutationObserver(() => {
+      // 找到昵称输入框（第一个输入框）
+      const qqInput = tcomment.querySelector('.el-input-group__prepend + .el-input__inner');
+      if (!qqInput || qqInput._qqAvatarBound) return;
+      qqInput._qqAvatarBound = true;
+
+      // 找到输入框所在的行容器
+      const inputRow = qqInput.closest('.tk-row') || qqInput.closest('.el-form-item') || qqInput.closest('form > div');
+      if (!inputRow) return;
+
+      // 创建头像容器，插入到输入行左侧
+      const wrapper = document.createElement('div');
+      wrapper.id = 'qq-avatar-wrapper';
+
+      const avatar = document.createElement('img');
+      avatar.id = 'qq-avatar-preview';
+      avatar.alt = '头像';
+      avatar.src = 'https://q1.qlogo.cn/g?b=qq&nk=10001&s=100'; // 默认占位头像
+      wrapper.appendChild(avatar);
+
+      // 让输入行变为 flex 布局，头像在左侧
+      inputRow.parentNode.insertBefore(wrapper, inputRow);
+      wrapper.appendChild(inputRow);
+      wrapper.style.display = 'flex';
+      wrapper.style.alignItems = 'center';
+      wrapper.style.gap = '10px';
+
+      // 监听昵称输入框变化
+      let timer;
+      qqInput.addEventListener('input', () => {
+        clearTimeout(timer);
+        const qq = qqInput.value.trim();
+        if (/^\d{5,11}$/.test(qq)) {
+          timer = setTimeout(() => {
+            const newSrc = `https://q1.qlogo.cn/g?b=qq&nk=${qq}&s=100`;
+            const temp = new Image();
+            temp.onload = () => {
+              avatar.style.opacity = '0';
+              setTimeout(() => {
+                avatar.src = newSrc;
+                avatar.style.opacity = '1';
+              }, 150);
+            };
+            temp.src = newSrc;
+          }, 500);
+        }
+      });
+    });
+
+    observer.observe(tcomment, { subtree: true, childList: true });
+  }
+
+  document.addEventListener('DOMContentLoaded', initQQAvatarPreview);
+  document.addEventListener('mizuki:page:loaded', initQQAvatarPreview);
 </script>
 
 <style is:global>
+/* QQ 头像实时预览 */
+#qq-avatar-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#qq-avatar-preview {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ddd;
+    flex-shrink: 0;
+    transition: opacity 0.3s ease;
+}
+
+[data-theme=dark] #qq-avatar-preview {
+    border-color: #555;
+}
+
+#qq-avatar-wrapper > *:last-child {
+    flex: 1;
+    min-width: 0;
+}
+
 .el-input.el-input--small.el-input-group.el-input-group--prepend:nth-child(1):before {
     content: '输入QQ号会自动获取昵称和头像🐧';
 }
@@ -111,7 +197,7 @@ const config = {
     background: #444;
     color: #fff;
     z-index: 10;
-    animation: tooltipIn 0.50s ease;
+    animation: tooltipIn 0.25s ease;
 }
 
 @keyframes tooltipIn {
