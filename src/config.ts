@@ -437,7 +437,7 @@ export const expressiveCodeConfig: ExpressiveCodeConfig = {
 export const commentConfig: CommentConfig = {
 	enable: true, // 启用评论功能。当设置为 false 时，评论组件将不会显示在文章区域。
 	twikoo: {
-		envId: "https://luofish.netlify.app/.netlify/functions/twikoo",
+		envId: "https://twikoo.luofish.com/",
 		lang: SITE_LANG,
 	},
 };
