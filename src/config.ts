@@ -22,8 +22,8 @@ import { LinkPreset } from "./types/config";
 const SITE_LANG = "zh_CN"; // 语言代码，例如：'en', 'zh_CN', 'ja' 等。
 const SITE_TIMEZONE = 8; //设置你的网站时区 from -12 to 12 default in UTC+8
 export const siteConfig: SiteConfig = {
-	title: "Luofish's Room",
-	subtitle: "One demo website",
+	title: "Luofish's Blog",
+	subtitle: "",
 	siteURL: "https://luofish.com/", // 请替换为你的站点URL，以斜杠结尾
 	siteStartDate: "2026-03-07", // 站点开始运行日期，用于站点统计组件计算运行天数
 
@@ -119,20 +119,12 @@ export const siteConfig: SiteConfig = {
 		// 支持单张图片或图片数组，当数组长度 > 1 时自动启用轮播
 		src: {
 			desktop: [
-				"/assets/desktop-banner/1.webp",
-				"/assets/desktop-banner/2.webp",
-				"/assets/desktop-banner/3.webp",
-				"/assets/desktop-banner/4.webp",
-				"/assets/desktop-banner/5.webp",
-				"/assets/desktop-banner/6.webp",
+				"https://upyun.luofish.com/blog/2026/03/2026-03-11-eKkV01.jpg",
+				"https://upyun.luofish.com/blog/2026/03/2026-03-11-wXHTAh.jpg",
 			], // 桌面横幅图片
 			mobile: [
-				"/assets/mobile-banner/1.webp",
-				"/assets/mobile-banner/2.webp",
-				"/assets/mobile-banner/3.webp",
-				"/assets/mobile-banner/4.webp",
-				"/assets/mobile-banner/5.webp",
-				"/assets/mobile-banner/6.webp",
+				"https://upyun.luofish.com/blog/2026/03/2026-03-11-Hl3iCg.jpg",
+				"https://upyun.luofish.com/blog/2026/03/2026-03-11-zd6PvK.jpg",
 			], // 移动横幅图片
 		}, // 使用本地横幅图片
 
@@ -470,11 +462,7 @@ export const musicPlayerConfig: MusicPlayerConfig = {
 
 export const footerConfig: FooterConfig = {
 	enable: true, // 是否启用Footer HTML注入功能
-	customHtml: "<p>备案号：<a href=https://beian.miit.gov.cn/>辽ICP备2025069469号-2</a></p>", // HTML格式的自定义页脚信息，例如备案号等，默认留空
-	// 也可以直接编辑 FooterConfig.html 文件来添加备案号等自定义内容
-	// 注意：若 customHtml 不为空，则使用 customHtml 中的内容；若 customHtml 留空，则使用 FooterConfig.html 文件中的内容
-	// FooterConfig.html 可能会在未来的某个版本弃用
-};
+	customHtml: "<p>备案号：<a href='https://beian.miit.gov.cn/'>辽ICP备2025069469号-2</a></p><br><p>本站由<a href='https://www.upyun.com/?utm_source=lianmeng&utm_medium=referral' target='_blank'><img src='/images/logo/upyun.png' style='height: 2.2em; vertical-align: middle; display: inline-block;'></a>提供云存储服务 | <a href='https://edgeone.ai/' target='_blank'><img src='/images/logo/edgeone.png' style='height: 1.5em; vertical-align: middle; display: inline-block;'></a>提供CDN加速服务</p>",};
 
 /**
  * 侧边栏布局配置
