@@ -350,7 +350,7 @@ export const navBarConfig: NavBarConfig = {
 };
 
 export const profileConfig: ProfileConfig = {
-	avatar: "https://upyun.lauro.cn/blog/2026/01/2026-01-04-b4nTEW.jpg", // 相对于 /src 目录。如果以 '/' 开头，则相对于 /public 目录
+	avatar: "https://upyun.luofish.com/blog/2026/01/2026-01-04-b4nTEW.jpg", // 相对于 /src 目录。如果以 '/' 开头，则相对于 /public 目录
 	name: "洛小鱼",
 	bio: "世界は大きい、君は行かなければならない",
 	typewriter: {
