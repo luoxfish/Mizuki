@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>博客编辑器</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #1a1a1a; }
+.app { max-width: 480px; margin: 0 auto; background: #fff; min-height: 100vh; }
+.header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 0.5px solid #e0e0e0; background: #fff; position: sticky; top: 0; z-index: 10; }
+.header h1 { font-size: 16px; font-weight: 500; }
+.tab-bar { display: flex; border-bottom: 0.5px solid #e0e0e0; background: #fff; position: sticky; top: 53px; z-index: 9; }
+.tab { flex: 1; padding: 10px; text-align: center; font-size: 13px; color: #888; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; }
+.tab.active { color: #1a1a1a; border-bottom-color: #1a1a1a; font-weight: 500; }
+.page { display: none; padding: 16px; }
+.page.active { display: block; }
+.field { margin-bottom: 14px; }
+.field label { display: block; font-size: 12px; color: #888; margin-bottom: 6px; }
+.field input, .field textarea, .field select {
+  width: 100%; font-size: 14px; padding: 9px 11px;
+  border: 0.5px solid #ddd; border-radius: 8px;
+  background: #fff; color: #1a1a1a;
+  font-family: inherit; outline: none;
+  transition: border-color 0.15s;
+}
+.field input:focus, .field textarea:focus { border-color: #888; }
+.field textarea { resize: vertical; min-height: 220px; font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.7; }
+.tags-input { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 10px; border: 0.5px solid #ddd; border-radius: 8px; cursor: text; min-height: 40px; align-items: center; }
+.tag { display: flex; align-items: center; gap: 4px; background: #f0f0f0; border-radius: 100px; padding: 3px 10px; font-size: 12px; color: #333; }
+.tag button { background: none; border: none; cursor: pointer; color: #999; font-size: 15px; padding: 0; line-height: 1; }
+.tags-input input { border: none; outline: none; font-size: 13px; background: transparent; min-width: 80px; flex: 1; padding: 2px 0; color: #1a1a1a; }
+.btn { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.15s; border: 0.5px solid #ddd; background: #fff; color: #1a1a1a; }
+.btn:active { transform: scale(0.98); }
+.btn-primary { background: #1a1a1a; color: #fff; border-color: transparent; }
+.btn-primary:hover { background: #333; }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.btn + .btn { margin-top: 10px; }
+.section-title { font-size: 11px; color: #999; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+.config-card { background: #f8f8f8; border-radius: 10px; padding: 14px; margin-bottom: 14px; }
+.config-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.config-row:last-child { margin-bottom: 0; }
+.config-row label { font-size: 13px; color: #555; white-space: nowrap; }
+.config-row input { width: 58%; font-size: 13px; }
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: #fff; padding: 10px 20px; border-radius: 100px; font-size: 13px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 99; white-space: nowrap; box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
+.toast.show { opacity: 1; }
+.status-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; padding: 4px 10px; border-radius: 100px; font-weight: 500; }
+.status-ok { background: #e6f4ea; color: #2d7a3a; }
+.status-err { background: #fce8e8; color: #c0392b; }
+.divider { height: 0.5px; background: #eee; margin: 16px 0; }
+.preview-box { background: #f8f8f8; border-radius: 8px; padding: 14px; font-size: 13px; line-height: 1.7; color: #333; white-space: pre-wrap; font-family: 'Courier New', monospace; overflow-x: auto; }
+.hint { font-size: 12px; color: #999; line-height: 1.7; margin-top: 10px; }
+.hint a { color: #555; }
+@media (prefers-color-scheme: dark) {
+  body { background: #111; color: #eee; }
+  .app, .header, .tab-bar { background: #1a1a1a; }
+  .field input, .field textarea, .tags-input, .config-row input { background: #252525; color: #eee; border-color: #333; }
+  .config-card, .preview-box { background: #252525; }
+  .tag { background: #333; color: #ccc; }
+  .btn { background: #1a1a1a; border-color: #333; color: #eee; }
+  .btn-primary { background: #eee; color: #1a1a1a; }
+  .btn-primary:hover { background: #fff; }
+  .tab { color: #666; }
+  .tab.active { color: #eee; border-bottom-color: #eee; }
+  .header, .tab-bar { border-color: #2a2a2a; }
+  .divider { background: #2a2a2a; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <h1><i class="ti ti-pencil"></i> 博客编辑器</h1>
+    <span id="cfg-status" class="status-badge status-err"><i class="ti ti-x" style="font-size:12px"></i> 未配置</span>
+  </div>
+
+  <div class="tab-bar">
+    <div class="tab active" onclick="switchTab('write')"><i class="ti ti-edit" style="font-size:14px"></i> 写文章</div>
+    <div class="tab" onclick="switchTab('preview')"><i class="ti ti-eye" style="font-size:14px"></i> 预览</div>
+    <div class="tab" onclick="switchTab('config')"><i class="ti ti-settings" style="font-size:14px"></i> 配置</div>
+  </div>
+
+  <div id="page-write" class="page active">
+    <div class="field">
+      <label>文章标题</label>
+      <input type="text" id="post-title" placeholder="输入文章标题..." />
+    </div>
+    <div class="field">
+      <label>文件名（slug）</label>
+      <input type="text" id="post-slug" placeholder="my-first-post" />
+    </div>
+    <div class="field">
+      <label>分类</label>
+      <input type="text" id="post-category" placeholder="技术 / 生活 / 随笔..." />
+    </div>
+    <div class="field">
+      <label>标签（输入后按回车）</label>
+      <div class="tags-input" id="tags-container" onclick="document.getElementById('tag-input').focus()">
+        <input type="text" id="tag-input" placeholder="添加标签..." onkeydown="handleTagInput(event)" />
+      </div>
+    </div>
+    <div class="field">
+      <label>正文内容（Markdown）</label>
+      <textarea id="post-body" placeholder="# 开始写作&#10;&#10;支持完整 Markdown 语法..."></textarea>
+    </div>
+    <button class="btn btn-primary" id="push-btn" onclick="pushPost()">
+      <i class="ti ti-brand-github"></i> 推送到 GitHub
+    </button>
+    <button class="btn" onclick="switchTab('preview')">
+      <i class="ti ti-eye"></i> 预览 Frontmatter
+    </button>
+  </div>
+
+  <div id="page-preview" class="page">
+    <p class="section-title">生成的 Frontmatter</p>
+    <div class="preview-box" id="preview-content"></div>
+    <div class="divider"></div>
+    <p class="section-title">正文内容</p>
+    <div class="preview-box" id="preview-body" style="max-height:300px;overflow-y:auto;"></div>
+  </div>
+
+  <div id="page-config" class="page">
+    <p class="section-title">GitHub 配置</p>
+    <div class="config-card">
+      <div class="config-row">
+        <label>用户名</label>
+        <input type="text" id="cfg-owner" placeholder="luoxfish" />
+      </div>
+      <div class="config-row">
+        <label>仓库名</label>
+        <input type="text" id="cfg-repo" placeholder="Mizuki" />
+      </div>
+      <div class="config-row">
+        <label>分支</label>
+        <input type="text" id="cfg-branch" placeholder="master" />
+      </div>
+      <div class="config-row">
+        <label>文章目录</label>
+        <input type="text" id="cfg-path" placeholder="src/content/posts" />
+      </div>
+      <div class="config-row">
+        <label>Access Token</label>
+        <input type="password" id="cfg-token" placeholder="ghp_xxxxxxxxxxxx" />
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="saveConfig()">
+      <i class="ti ti-check"></i> 保存配置
+    </button>
+    <button class="btn" onclick="testConfig()">
+      <i class="ti ti-plug"></i> 测试连接
+    </button>
+    <div class="divider"></div>
+    <p class="section-title">使用说明</p>
+    <p class="hint">
+      Token 需要 <strong>repo</strong> 权限。<br>
+      前往 <a href="https://github.com/settings/tokens" target="_blank">GitHub → Settings → Developer settings → Personal access tokens</a> 生成。<br><br>
+      配置仅保存在本设备浏览器中，不会上传到任何服务器。
+    </p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let tags = [];
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', ['write','preview','config'][i] === name);
+  });
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  if (name === 'preview') updatePreview();
+}
+
+function handleTagInput(e) {
+  if (e.key === 'Enter' || e.key === ',') {
+    e.preventDefault();
+    const val = e.target.value.trim().replace(/,$/, '');
+    if (val && !tags.includes(val)) { tags.push(val); renderTags(); }
+    e.target.value = '';
+  } else if (e.key === 'Backspace' && !e.target.value && tags.length) {
+    tags.pop(); renderTags();
+  }
+}
+
+function renderTags() {
+  const c = document.getElementById('tags-container');
+  c.querySelectorAll('.tag').forEach(t => t.remove());
+  tags.forEach((tag, i) => {
+    const el = document.createElement('div');
+    el.className = 'tag';
+    el.innerHTML = tag + '<button onclick="removeTag(' + i + ')">&times;</button>';
+    c.insertBefore(el, document.getElementById('tag-input'));
+  });
+}
+
+function removeTag(i) { tags.splice(i, 1); renderTags(); }
+
+function getToday() { return new Date().toISOString().split('T')[0]; }
+
+function buildFrontmatter() {
+  const title = document.getElementById('post-title').value || '未命名文章';
+  const category = document.getElementById('post-category').value || '';
+  const tagStr = tags.length ? '[' + tags.join(', ') + ']' : '[]';
+  return `---\ntitle: ${title}\npublished: ${getToday()}\ndescription: ''\ntags: ${tagStr}\ncategory: ${category}\ndraft: false\n---`;
+}
+
+function buildContent() {
+  return buildFrontmatter() + '\n\n' + (document.getElementById('post-body').value || '');
+}
+
+function updatePreview() {
+  document.getElementById('preview-content').textContent = buildFrontmatter();
+  document.getElementById('preview-body').textContent = document.getElementById('post-body').value || '（正文为空）';
+}
+
+function loadConfig() {
+  ['owner','repo','branch','path','token'].forEach(k => {
+    const v = localStorage.getItem('blog_' + k);
+    if (v) document.getElementById('cfg-' + k).value = v;
+  });
+  updateStatusBadge();
+}
+
+function saveConfig() {
+  ['owner','repo','branch','path','token'].forEach(k => {
+    localStorage.setItem('blog_' + k, document.getElementById('cfg-' + k).value.trim());
+  });
+  updateStatusBadge();
+  showToast('配置已保存');
+}
+
+function updateStatusBadge() {
+  const ok = localStorage.getItem('blog_token') && localStorage.getItem('blog_owner');
+  const badge = document.getElementById('cfg-status');
+  badge.className = 'status-badge ' + (ok ? 'status-ok' : 'status-err');
+  badge.innerHTML = ok
+    ? '<i class="ti ti-check" style="font-size:12px"></i> 已配置'
+    : '<i class="ti ti-x" style="font-size:12px"></i> 未配置';
+}
+
+function getConfig() {
+  return {
+    owner: localStorage.getItem('blog_owner') || '',
+    repo: localStorage.getItem('blog_repo') || '',
+    branch: localStorage.getItem('blog_branch') || 'master',
+    path: (localStorage.getItem('blog_path') || 'src/content/posts').replace(/\/$/, ''),
+    token: localStorage.getItem('blog_token') || ''
+  };
+}
+
+async function testConfig() {
+  const cfg = getConfig();
+  if (!cfg.token || !cfg.owner || !cfg.repo) { showToast('请先填写并保存配置'); return; }
+  try {
+    const res = await fetch(`https://api.github.com/repos/${cfg.owner}/${cfg.repo}`, {
+      headers: { Authorization: 'token ' + cfg.token, 'User-Agent': 'blog-editor' }
+    });
+    showToast(res.ok ? '连接成功 ✓' : '连接失败，请检查配置');
+  } catch(e) { showToast('网络错误: ' + e.message); }
+}
+
+async function pushPost() {
+  const slug = document.getElementById('post-slug').value.trim();
+  if (!slug) { showToast('请填写文件名（slug）'); return; }
+  const cfg = getConfig();
+  if (!cfg.token) { showToast('请先配置 GitHub Token'); switchTab('config'); return; }
+
+  const btn = document.getElementById('push-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader-2"></i> 推送中...';
+
+  const content = buildContent();
+  const encoded = btoa(unescape(encodeURIComponent(content)));
+  const filePath = `${cfg.path}/${slug}.md`;
+  const apiUrl = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/${filePath}`;
+  const headers = { Authorization: 'token ' + cfg.token, 'Content-Type': 'application/json', 'User-Agent': 'blog-editor' };
+
+  try {
+    let sha = '';
+    const check = await fetch(apiUrl, { headers });
+    if (check.ok) { const data = await check.json(); sha = data.sha; }
+
+    const body = {
+      message: `发布文章: ${document.getElementById('post-title').value || slug}`,
+      content: encoded,
+      branch: cfg.branch
+    };
+    if (sha) body.sha = sha;
+
+    const res = await fetch(apiUrl, { method: 'PUT', headers, body: JSON.stringify(body) });
+
+    if (res.ok) {
+      showToast(sha ? '文章已更新 ✓' : '文章已发布 ✓');
+    } else {
+      const err = await res.json();
+      showToast('失败: ' + (err.message || res.status));
+    }
+  } catch(e) {
+    showToast('错误: ' + e.message);
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<i class="ti ti-brand-github"></i> 推送到 GitHub';
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+document.getElementById('post-title').addEventListener('input', function() {
+  const slug = this.value.trim().toLowerCase()
+    .replace(/[\s_]+/g, '-')
+    .replace(/[^\w\u4e00-\u9fa5-]/g, '');
+  document.getElementById('post-slug').value = slug;
+});
+
+loadConfig();
+</script>
+</body>
+</html>
